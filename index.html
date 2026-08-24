@@ -17,28 +17,25 @@
       width: 100vw; height: 100vh;
       background-color: #000000;
     }
-    #dimensions-panel {
+
+    /* Logotipo / Titulo Institucional */
+    #brand-title {
       position: absolute;
-      bottom: 24px;
-      left: 24px;
-      background: rgba(15, 15, 15, 0.85);
+      top: 16px;
+      left: 16px;
       color: #ffffff;
-      padding: 12px 18px;
-      border-radius: 8px;
-      border: 1px solid #333333;
-      font-size: 14px;
-      line-height: 1.6;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      z-index: 10;
-      pointer-events: none;
-    }
-    #dimensions-panel h4 {
-      margin: 0 0 4px 0;
-      font-size: 11px;
-      color: #888888;
+      font-size: 13px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      background: rgba(15, 15, 15, 0.7);
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      pointer-events: none;
+      z-index: 10;
     }
+
+    /* Botón AR */
     #ar-button {
       background-color: #ffffff;
       border-radius: 4px;
@@ -46,20 +43,62 @@
       position: absolute;
       top: 16px;
       right: 16px;
-      padding: 10px 16px;
+      padding: 8px 14px;
       font-weight: bold;
       color: #000000;
       cursor: pointer;
       z-index: 10;
     }
+
+    /* Panel de controles inferior */
+    #controls-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      background: rgba(15, 15, 15, 0.85);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #333333;
+      z-index: 10;
+      max-width: 90vw;
+    }
+
+    .btn-control {
+      background: #222222;
+      color: #ffffff;
+      border: 1px solid #444444;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-control:hover {
+      background: #333333;
+    }
+
+    .btn-control.active {
+      border-color: #007bff;
+      background: #112233;
+    }
+
+    .separator {
+      width: 1px;
+      background: #444;
+      margin: 0 4px;
+    }
   </style>
 </head>
 <body>
 
-  <div id="dimensions-panel">
-    <h4>Dimensiones de la pieza</h4>
-    <div id="dimensions-content">Calculando...</div>
-  </div>
+  <!-- Marca Institucional -->
+  <div id="brand-title">Muestra Anatómica 3D</div>
 
   <model-viewer 
     id="craneo-viewer"
@@ -70,47 +109,76 @@
     camera-controls 
     tone-mapping="neutral" 
     shadow-intensity="1"
-    exposure="1.5">
+    exposure="1.5"
+    min-camera-orbit="auto auto 40%"  
+    max-camera-orbit="auto auto 200%" 
+    camera-orbit="0deg 75deg 105%">
     
     <button slot="ar-button" id="ar-button">
-      Ver en tu espacio (AR)
+      👋 Ver en tu espacio (AR)
     </button>
   </model-viewer>
+
+  <!-- Panel de Herramientas -->
+  <div id="controls-panel">
+    <!-- Vistas Anatómicas -->
+    <button class="btn-control" onclick="cambiarVista('0deg 75deg 105%')">Frontal</button>
+    <button class="btn-control" onclick="cambiarVista('0deg 0deg 105%')">Superior</button>
+    <button class="btn-control" onclick="cambiarVista('90deg 75deg 105%')">Lateral</button>
+    <button class="btn-control" onclick="cambiarVista('180deg 75deg 105%')">Posterior</button>
+
+    <div class="separator"></div>
+
+    <!-- Modos de Luz -->
+    <button class="btn-control" onclick="cambiarLuz(1.5, 'neutral')">Luz Estudio</button>
+    <button class="btn-control" onclick="cambiarLuz(2.5, 'commerce')">Luz Intensa</button>
+    <button class="btn-control" onclick="cambiarLuz(0.8, 'aces')">Luz Rasante</button>
+
+    <div class="separator"></div>
+
+    <!-- Funciones Extra -->
+    <button class="btn-control" id="btn-rotation" onclick="toggleRotacion()">Auto-Giro</button>
+    <button class="btn-control" onclick="toggleFullscreen()">Pantalla Completa</button>
+  </div>
 
   <script>
     const mv = document.querySelector("#craneo-viewer");
 
-    function actualizarModelo() {
-      // 1. Brillo pulido
+    // Brillo pulido
+    mv.addEventListener('load', () => {
       if (mv.model && mv.model.materials && mv.model.materials[0]) {
         mv.model.materials[0].pbrMetallicRoughness.setRoughnessFactor(0.2);
         mv.model.materials[0].pbrMetallicRoughness.setMetalnessFactor(0.1);
       }
-
-      // 2. Obtener dimensiones
-      const size = mv.getDimensions();
-      if (size && (size.x > 0 || size.y > 0 || size.z > 0)) {
-        const alto = (size.y * 100).toFixed(1);
-        const ancho = (size.x * 100).toFixed(1);
-        const largo = (size.z * 100).toFixed(1);
-
-        document.getElementById("dimensions-content").innerHTML = `
-          <strong>Alto:</strong> ${alto} cm<br>
-          <strong>Ancho:</strong> ${ancho} cm<br>
-          <strong>Largo:</strong> ${largo} cm
-        `;
-      }
-    }
-
-    // Escuchamos varios eventos para asegurar que lea las medidas apenas cargue en el celular
-    mv.addEventListener('load', () => {
-      actualizarModelo();
-      // Reintentos automáticos por si el móvil tarda en deserializar la malla
-      setTimeout(actualizarModelo, 500);
-      setTimeout(actualizarModelo, 1500);
     });
 
-    mv.addEventListener('poster-dismissed', actualizarModelo);
+    // Cambiar vista de la cámara
+    function cambiarVista(orbit) {
+      mv.cameraOrbit = orbit;
+    }
+
+    // Cambiar iluminación
+    function cambiarLuz(exposure, toneMapping) {
+      mv.exposure = exposure;
+      mv.toneMapping = toneMapping;
+    }
+
+    // Activar/desactivar auto-rotación
+    function toggleRotacion() {
+      mv.autoRotate = !mv.autoRotate;
+      document.getElementById('btn-rotation').classList.toggle('active', mv.autoRotate);
+    }
+
+    // Pantalla completa
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
   </script>
 
 </body>
