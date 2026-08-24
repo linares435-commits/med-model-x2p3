@@ -35,7 +35,7 @@
       z-index: 10;
     }
 
-    /* Botón AR */
+    /* Botón AR Profesional */
     #ar-button {
       background-color: #ffffff;
       border-radius: 4px;
@@ -44,13 +44,15 @@
       top: 16px;
       right: 16px;
       padding: 8px 14px;
-      font-weight: bold;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
       color: #000000;
       cursor: pointer;
       z-index: 10;
     }
 
-    /* Panel de controles inferior (Escritorio) */
+    /* Panel de controles inferior */
     #controls-panel {
       position: absolute;
       bottom: 20px;
@@ -67,7 +69,6 @@
       z-index: 10;
       width: 90vw;
       max-width: 600px;
-      /* Ocultar barra de scroll en móviles */
       scrollbar-width: none; 
     }
     #controls-panel::-webkit-scrollbar { 
@@ -99,7 +100,7 @@
       margin: 0 4px;
     }
 
-    /* === AJUSTES EXCLUSIVOS PARA TELÉFONOS MÓVILES === */
+    /* Estilos móviles */
     @media (max-width: 600px) {
       #brand-title {
         font-size: 9px;
@@ -107,21 +108,21 @@
         left: 10px;
       }
       #ar-button {
-        font-size: 11px;
+        font-size: 10px;
         padding: 6px 10px;
         right: 10px;
       }
       #controls-panel {
-        flex-wrap: nowrap; /* Fuerza una sola línea */
-        justify-content: flex-start; /* Alinea a la izquierda para poder deslizar */
-        overflow-x: auto; /* Permite deslizar con el dedo */
-        -webkit-overflow-scrolling: touch; /* Desplazamiento suave en iOS */
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         padding: 8px;
         bottom: 16px;
       }
       .btn-control {
-        flex-shrink: 0; /* Evita que los botones se aplasten */
-        padding: 8px 12px; /* Botones más altos para tocarlos fácil */
+        flex-shrink: 0;
+        padding: 8px 12px;
       }
       .separator {
         flex-shrink: 0;
@@ -141,14 +142,14 @@
     ar-modes="webxr scene-viewer quick-look" 
     camera-controls 
     tone-mapping="neutral" 
-    shadow-intensity="1"
-    exposure="1.5"
+    shadow-intensity="0.8"
+    exposure="1.0"
     min-camera-orbit="auto auto 40%"  
     max-camera-orbit="auto auto 200%" 
     camera-orbit="0deg 75deg 105%">
     
     <button slot="ar-button" id="ar-button">
-      AR
+      Ver en Realidad Aumentada
     </button>
   </model-viewer>
 
@@ -160,9 +161,9 @@
 
     <div class="separator"></div>
 
-    <button class="btn-control" onclick="cambiarLuz(1.5, 'neutral')">Luz Estudio</button>
-    <button class="btn-control" onclick="cambiarLuz(2.5, 'commerce')">Luz Intensa</button>
-    <button class="btn-control" onclick="cambiarLuz(0.8, 'aces')">Luz Rasante</button>
+    <button class="btn-control" onclick="cambiarLuz(1.0, 'neutral')">Luz Exposición</button>
+    <button class="btn-control" onclick="cambiarLuz(1.6, 'neutral')">Luz Clara</button>
+    <button class="btn-control" onclick="cambiarLuz(0.6, 'aces')">Luz Rasante</button>
 
     <div class="separator"></div>
 
@@ -175,8 +176,8 @@
 
     mv.addEventListener('load', () => {
       if (mv.model && mv.model.materials && mv.model.materials[0]) {
-        mv.model.materials[0].pbrMetallicRoughness.setRoughnessFactor(0.2);
-        mv.model.materials[0].pbrMetallicRoughness.setMetalnessFactor(0.1);
+        mv.model.materials[0].pbrMetallicRoughness.setRoughnessFactor(0.88);
+        mv.model.materials[0].pbrMetallicRoughness.setMetalnessFactor(0.0);
       }
     });
 
