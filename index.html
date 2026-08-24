@@ -17,7 +17,6 @@
       width: 100vw; height: 100vh;
       background-color: #000000;
     }
-    /* Estilo del cuadro de dimensiones */
     #dimensions-panel {
       position: absolute;
       bottom: 24px;
@@ -40,7 +39,6 @@
       text-transform: uppercase;
       letter-spacing: 1px;
     }
-    /* Botón de Realidad Aumentada forzado */
     #ar-button {
       background-color: #ffffff;
       border-radius: 4px;
@@ -60,7 +58,7 @@
 
   <div id="dimensions-panel">
     <h4>Dimensiones de la pieza</h4>
-    <div id="dimensions-content">Cargando...</div>
+    <div id="dimensions-content">Calculando...</div>
   </div>
 
   <model-viewer 
@@ -74,7 +72,6 @@
     shadow-intensity="1"
     exposure="1.5">
     
-    <!-- Botón visible en celulares para activar AR -->
     <button slot="ar-button" id="ar-button">
       Ver en tu espacio (AR)
     </button>
@@ -82,35 +79,38 @@
 
   <script>
     const mv = document.querySelector("#craneo-viewer");
-    
-    // Método más seguro para obtener las dimensiones cuando el modelo esté listo
-    mv.addEventListener('load', () => {
-      // 1. Brillo
-      const material = mv.model.materials[0];
-      if (material) {
-        material.pbrMetallicRoughness.setRoughnessFactor(0.2);
-        material.pbrMetallicRoughness.setMetalnessFactor(0.1);
+
+    function actualizarModelo() {
+      // 1. Brillo pulido
+      if (mv.model && mv.model.materials && mv.model.materials[0]) {
+        mv.model.materials[0].pbrMetallicRoughness.setRoughnessFactor(0.2);
+        mv.model.materials[0].pbrMetallicRoughness.setMetalnessFactor(0.1);
       }
 
-      // 2. Medidas (usando getBoundingBoxBufferOrShape o getDimensions directo)
-      setTimeout(() => {
-        const size = mv.getDimensions();
-        
-        if (size) {
-          const alto = (size.y * 100).toFixed(1);
-          const ancho = (size.x * 100).toFixed(1);
-          const largo = (size.z * 100).toFixed(1);
+      // 2. Obtener dimensiones
+      const size = mv.getDimensions();
+      if (size && (size.x > 0 || size.y > 0 || size.z > 0)) {
+        const alto = (size.y * 100).toFixed(1);
+        const ancho = (size.x * 100).toFixed(1);
+        const largo = (size.z * 100).toFixed(1);
 
-          document.getElementById("dimensions-content").innerHTML = `
-            <strong>Alto:</strong> ${alto} cm<br>
-            <strong>Ancho:</strong> ${ancho} cm<br>
-            <strong>Largo:</strong> ${largo} cm
-          `;
-        } else {
-          document.getElementById("dimensions-content").innerText = "Escala 1:1";
-        }
-      }, 500); // Pequeña pausa para asegurar la lectura
+        document.getElementById("dimensions-content").innerHTML = `
+          <strong>Alto:</strong> ${alto} cm<br>
+          <strong>Ancho:</strong> ${ancho} cm<br>
+          <strong>Largo:</strong> ${largo} cm
+        `;
+      }
+    }
+
+    // Escuchamos varios eventos para asegurar que lea las medidas apenas cargue en el celular
+    mv.addEventListener('load', () => {
+      actualizarModelo();
+      // Reintentos automáticos por si el móvil tarda en deserializar la malla
+      setTimeout(actualizarModelo, 500);
+      setTimeout(actualizarModelo, 1500);
     });
+
+    mv.addEventListener('poster-dismissed', actualizarModelo);
   </script>
 
 </body>
