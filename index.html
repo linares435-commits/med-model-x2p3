@@ -11,44 +11,80 @@
       width: 100%; height: 100%;
       overflow: hidden;
       background-color: #000000;
+      font-family: Arial, sans-serif;
     }
     model-viewer {
       width: 100vw; height: 100vh;
       background-color: #000000;
     }
+    /* Cuadro elegante en la esquina con las dimensiones */
+    #dimensions-panel {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: rgba(15, 15, 15, 0.85);
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      border: 1px solid #333333;
+      font-size: 14px;
+      line-height: 1.6;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      z-index: 10;
+      pointer-events: none; /* No interfiere al girar el modelo */
+    }
+    #dimensions-panel h4 {
+      margin: 0 0 4px 0;
+      font-size: 11px;
+      color: #888888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Cuadro que muestra las medidas en pantalla -->
+  <div id="dimensions-panel">
+    <h4>Dimensiones de la pieza</h4>
+    <div id="dimensions-content">Calculando...</div>
+  </div>
+
   <model-viewer 
-    id="craneo-shiny"
+    id="craneo-viewer"
     src="Tutuma2-P3-COMP.glb" 
+    style="background-color: #000000;"
     ar 
     ar-modes="webxr scene-viewer quick-look" 
     camera-controls 
     tone-mapping="neutral" 
     shadow-intensity="1"
-    exposure="1.5"> <!-- Subimos exposición para ver más brillos -->
+    exposure="1.5">
   </model-viewer>
 
   <script>
-    const mv = document.querySelector("#craneo-shiny");
+    const mv = document.querySelector("#craneo-viewer");
     
-    // Esperamos a que cargue el modelo
     mv.addEventListener('load', () => {
-      // 1. Obtenemos el material
+      // 1. Aplicar brillo pulido (Roughness 0.2)
       const material = mv.model.materials[0];
+      if (material) {
+        material.pbrMetallicRoughness.setRoughnessFactor(0.2);
+        material.pbrMetallicRoughness.setMetalnessFactor(0.1);
+      }
 
-      // 2. Quitamos el tono mate (Bajamos Roughness)
-      // Un valor de 0 es un espejo, 1 es papel mate.
-      // 0.2 es un brillo pulido muy bueno.
-      material.pbrMetallicRoughness.setRoughnessFactor(0.2);
+      // 2. Obtener y mostrar las medidas reales en centímetros
+      const size = mv.getDimensions(); // Mide en metros
+      
+      const alto = (size.y * 100).toFixed(1);
+      const ancho = (size.x * 100).toFixed(1);
+      const largo = (size.z * 100).toFixed(1);
 
-      // 3. (Opcional) Aumentamos el tono metálico para más reflejos
-      // Un valor bajo (0.1 o 0.2) lo mantiene orgánico pero brillante.
-      material.pbrMetallicRoughness.setMetalnessFactor(0.1);
-
-      console.log("Material actualizado a brillante");
+      document.getElementById("dimensions-content").innerHTML = `
+        <strong>Alto:</strong> ${alto} cm<br>
+        <strong>Ancho:</strong> ${ancho} cm<br>
+        <strong>Largo:</strong> ${largo} cm
+      `;
     });
   </script>
 
