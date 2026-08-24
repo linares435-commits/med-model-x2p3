@@ -17,7 +17,7 @@
       width: 100vw; height: 100vh;
       background-color: #000000;
     }
-    /* Cuadro elegante en la esquina con las dimensiones */
+    /* Estilo del cuadro de dimensiones */
     #dimensions-panel {
       position: absolute;
       bottom: 24px;
@@ -31,7 +31,7 @@
       line-height: 1.6;
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
       z-index: 10;
-      pointer-events: none; /* No interfiere al girar el modelo */
+      pointer-events: none;
     }
     #dimensions-panel h4 {
       margin: 0 0 4px 0;
@@ -40,14 +40,27 @@
       text-transform: uppercase;
       letter-spacing: 1px;
     }
+    /* Botón de Realidad Aumentada forzado */
+    #ar-button {
+      background-color: #ffffff;
+      border-radius: 4px;
+      border: none;
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 10px 16px;
+      font-weight: bold;
+      color: #000000;
+      cursor: pointer;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Cuadro que muestra las medidas en pantalla -->
   <div id="dimensions-panel">
     <h4>Dimensiones de la pieza</h4>
-    <div id="dimensions-content">Calculando...</div>
+    <div id="dimensions-content">Cargando...</div>
   </div>
 
   <model-viewer 
@@ -60,31 +73,43 @@
     tone-mapping="neutral" 
     shadow-intensity="1"
     exposure="1.5">
+    
+    <!-- Botón visible en celulares para activar AR -->
+    <button slot="ar-button" id="ar-button">
+      👋 Ver en tu espacio (AR)
+    </button>
   </model-viewer>
 
   <script>
     const mv = document.querySelector("#craneo-viewer");
     
+    // Método más seguro para obtener las dimensiones cuando el modelo esté listo
     mv.addEventListener('load', () => {
-      // 1. Aplicar brillo pulido (Roughness 0.2)
+      // 1. Brillo
       const material = mv.model.materials[0];
       if (material) {
         material.pbrMetallicRoughness.setRoughnessFactor(0.2);
         material.pbrMetallicRoughness.setMetalnessFactor(0.1);
       }
 
-      // 2. Obtener y mostrar las medidas reales en centímetros
-      const size = mv.getDimensions(); // Mide en metros
-      
-      const alto = (size.y * 100).toFixed(1);
-      const ancho = (size.x * 100).toFixed(1);
-      const largo = (size.z * 100).toFixed(1);
+      // 2. Medidas (usando getBoundingBoxBufferOrShape o getDimensions directo)
+      setTimeout(() => {
+        const size = mv.getDimensions();
+        
+        if (size) {
+          const alto = (size.y * 100).toFixed(1);
+          const ancho = (size.x * 100).toFixed(1);
+          const largo = (size.z * 100).toFixed(1);
 
-      document.getElementById("dimensions-content").innerHTML = `
-        <strong>Alto:</strong> ${alto} cm<br>
-        <strong>Ancho:</strong> ${ancho} cm<br>
-        <strong>Largo:</strong> ${largo} cm
-      `;
+          document.getElementById("dimensions-content").innerHTML = `
+            <strong>Alto:</strong> ${alto} cm<br>
+            <strong>Ancho:</strong> ${ancho} cm<br>
+            <strong>Largo:</strong> ${largo} cm
+          `;
+        } else {
+          document.getElementById("dimensions-content").innerText = "Escala 1:1";
+        }
+      }, 500); // Pequeña pausa para asegurar la lectura
     });
   </script>
 
