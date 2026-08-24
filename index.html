@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
   <style>
     body, html {
@@ -18,7 +18,7 @@
       background-color: #000000;
     }
 
-    /* Logotipo / Titulo Institucional */
+    /* Logotipo Institucional */
     #brand-title {
       position: absolute;
       top: 16px;
@@ -50,7 +50,7 @@
       z-index: 10;
     }
 
-    /* Panel de controles inferior */
+    /* Panel de controles inferior (Escritorio) */
     #controls-panel {
       position: absolute;
       bottom: 20px;
@@ -65,7 +65,13 @@
       border-radius: 8px;
       border: 1px solid #333333;
       z-index: 10;
-      max-width: 90vw;
+      width: 90vw;
+      max-width: 600px;
+      /* Ocultar barra de scroll en móviles */
+      scrollbar-width: none; 
+    }
+    #controls-panel::-webkit-scrollbar { 
+      display: none; 
     }
 
     .btn-control {
@@ -76,28 +82,55 @@
       border-radius: 4px;
       font-size: 12px;
       cursor: pointer;
+      white-space: nowrap;
       transition: background 0.2s;
     }
 
     .btn-control:hover {
       background: #333333;
     }
-
     .btn-control.active {
       border-color: #007bff;
       background: #112233;
     }
-
     .separator {
       width: 1px;
       background: #444;
       margin: 0 4px;
     }
+
+    /* === AJUSTES EXCLUSIVOS PARA TELÉFONOS MÓVILES === */
+    @media (max-width: 600px) {
+      #brand-title {
+        font-size: 9px;
+        padding: 6px 8px;
+        left: 10px;
+      }
+      #ar-button {
+        font-size: 11px;
+        padding: 6px 10px;
+        right: 10px;
+      }
+      #controls-panel {
+        flex-wrap: nowrap; /* Fuerza una sola línea */
+        justify-content: flex-start; /* Alinea a la izquierda para poder deslizar */
+        overflow-x: auto; /* Permite deslizar con el dedo */
+        -webkit-overflow-scrolling: touch; /* Desplazamiento suave en iOS */
+        padding: 8px;
+        bottom: 16px;
+      }
+      .btn-control {
+        flex-shrink: 0; /* Evita que los botones se aplasten */
+        padding: 8px 12px; /* Botones más altos para tocarlos fácil */
+      }
+      .separator {
+        flex-shrink: 0;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Marca Institucional -->
   <div id="brand-title">Muestra Anatómica 3D</div>
 
   <model-viewer 
@@ -115,13 +148,11 @@
     camera-orbit="0deg 75deg 105%">
     
     <button slot="ar-button" id="ar-button">
-      Ver en tu espacio (AR)
+      AR
     </button>
   </model-viewer>
 
-  <!-- Panel de Herramientas -->
   <div id="controls-panel">
-    <!-- Vistas Anatómicas -->
     <button class="btn-control" onclick="cambiarVista('0deg 75deg 105%')">Frontal</button>
     <button class="btn-control" onclick="cambiarVista('0deg 0deg 105%')">Superior</button>
     <button class="btn-control" onclick="cambiarVista('90deg 75deg 105%')">Lateral</button>
@@ -129,14 +160,12 @@
 
     <div class="separator"></div>
 
-    <!-- Modos de Luz -->
     <button class="btn-control" onclick="cambiarLuz(1.5, 'neutral')">Luz Estudio</button>
     <button class="btn-control" onclick="cambiarLuz(2.5, 'commerce')">Luz Intensa</button>
     <button class="btn-control" onclick="cambiarLuz(0.8, 'aces')">Luz Rasante</button>
 
     <div class="separator"></div>
 
-    <!-- Funciones Extra -->
     <button class="btn-control" id="btn-rotation" onclick="toggleRotacion()">Auto-Giro</button>
     <button class="btn-control" onclick="toggleFullscreen()">Pantalla Completa</button>
   </div>
@@ -144,7 +173,6 @@
   <script>
     const mv = document.querySelector("#craneo-viewer");
 
-    // Brillo pulido
     mv.addEventListener('load', () => {
       if (mv.model && mv.model.materials && mv.model.materials[0]) {
         mv.model.materials[0].pbrMetallicRoughness.setRoughnessFactor(0.2);
@@ -152,31 +180,17 @@
       }
     });
 
-    // Cambiar vista de la cámara
-    function cambiarVista(orbit) {
-      mv.cameraOrbit = orbit;
-    }
-
-    // Cambiar iluminación
-    function cambiarLuz(exposure, toneMapping) {
-      mv.exposure = exposure;
-      mv.toneMapping = toneMapping;
-    }
-
-    // Activar/desactivar auto-rotación
+    function cambiarVista(orbit) { mv.cameraOrbit = orbit; }
+    function cambiarLuz(exposure, toneMapping) { mv.exposure = exposure; mv.toneMapping = toneMapping; }
     function toggleRotacion() {
       mv.autoRotate = !mv.autoRotate;
       document.getElementById('btn-rotation').classList.toggle('active', mv.autoRotate);
     }
-
-    // Pantalla completa
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
+        if (document.exitFullscreen) { document.exitFullscreen(); }
       }
     }
   </script>
