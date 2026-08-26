@@ -17,6 +17,7 @@
       width: 100vw; height: 100vh;
       background-color: #000000;
     }
+
     #brand-title {
       position: absolute;
       top: 16px;
@@ -32,6 +33,7 @@
       pointer-events: none;
       z-index: 10;
     }
+
     #ar-button {
       background-color: #ffffff;
       border-radius: 4px;
@@ -47,6 +49,7 @@
       cursor: pointer;
       z-index: 10;
     }
+
     #controls-panel {
       position: absolute;
       bottom: 20px;
@@ -62,10 +65,11 @@
       border: 1px solid #333333;
       z-index: 10;
       width: 90vw;
-      max-width: 600px;
+      max-width: 650px;
       scrollbar-width: none; 
     }
     #controls-panel::-webkit-scrollbar { display: none; }
+
     .btn-control {
       background: #222222;
       color: #ffffff;
@@ -80,6 +84,7 @@
     .btn-control:hover { background: #333333; }
     .btn-control.active { border-color: #007bff; background: #112233; }
     .separator { width: 1px; background: #444; margin: 0 4px; }
+
     @media (max-width: 600px) {
       #brand-title { font-size: 9px; padding: 6px 8px; left: 10px; }
       #ar-button { font-size: 10px; padding: 6px 10px; right: 10px; }
@@ -101,9 +106,9 @@
     ar-modes="webxr scene-viewer quick-look" 
     camera-controls 
     tone-mapping="neutral" 
-    shadow-intensity="1.5"
-    shadow-softness="0.2"
-    exposure="1.1"
+    shadow-intensity="2.0"
+    shadow-softness="0.1"
+    exposure="1.2"
     min-camera-orbit="auto auto 30%"  
     max-camera-orbit="auto auto 200%" 
     camera-orbit="0deg 75deg 105%">
@@ -121,9 +126,10 @@
 
     <div class="separator"></div>
 
-    <button class="btn-control" onclick="cambiarLuz(1.1, 'neutral')">Luz Exposición</button>
-    <button class="btn-control" onclick="cambiarLuz(1.6, 'neutral')">Luz Clara</button>
-    <button class="btn-control" onclick="cambiarLuz(0.7, 'aces')">Luz Rasante (Detalle)</button>
+    <!-- Perfiles de Iluminación Múltiple -->
+    <button class="btn-control" onclick="cambiarModoLuz('estudio')">Focos Estudio</button>
+    <button class="btn-control" onclick="cambiarModoLuz('alto-contraste')">Alto Contraste</button>
+    <button class="btn-control" onclick="cambiarModoLuz('rasante')">Luz Rasante</button>
 
     <div class="separator"></div>
 
@@ -136,18 +142,39 @@
 
     mv.addEventListener('load', () => {
       if (mv.model && mv.model.materials && mv.model.materials[0]) {
-        // Ligera elevación del contraste sin brillo metálico
-        mv.model.materials[0].pbrMetallicRoughness.setRoughnessFactor(0.75);
+        // Mantiene acabado fósil pero permite sutiles reflejos de luz direccional
+        mv.model.materials[0].pbrMetallicRoughness.setRoughnessFactor(0.70);
         mv.model.materials[0].pbrMetallicRoughness.setMetalnessFactor(0.0);
       }
     });
 
     function cambiarVista(orbit) { mv.cameraOrbit = orbit; }
-    function cambiarLuz(exposure, toneMapping) { mv.exposure = exposure; mv.toneMapping = toneMapping; }
+
+    // Cambia modos de iluminación simétrica
+    function cambiarModoLuz(modo) {
+      if (modo === 'estudio') {
+        mv.exposure = 1.3;
+        mv.toneMapping = 'neutral';
+        mv.shadowIntensity = 1.8;
+        mv.shadowSoftness = 0.2;
+      } else if (modo === 'alto-contraste') {
+        mv.exposure = 1.6;
+        mv.toneMapping = 'commerce';
+        mv.shadowIntensity = 2.5;
+        mv.shadowSoftness = 0.0;
+      } else if (modo === 'rasante') {
+        mv.exposure = 0.8;
+        mv.toneMapping = 'aces';
+        mv.shadowIntensity = 3.0;
+        mv.shadowSoftness = 0.1;
+      }
+    }
+
     function toggleRotacion() {
       mv.autoRotate = !mv.autoRotate;
       document.getElementById('btn-rotation').classList.toggle('active', mv.autoRotate);
     }
+
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
