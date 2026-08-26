@@ -96,7 +96,8 @@
 </head>
 <body>
 
-  <div id="brand-title">Muestra Anatómica 3D</div>
+  <!-- Incluye v2.0 para confirmar que cargó el nuevo código -->
+  <div id="brand-title">Muestra Anatómica 3D (v2.0)</div>
 
   <model-viewer 
     id="craneo-viewer"
@@ -126,7 +127,6 @@
 
     <div class="separator"></div>
 
-    <!-- Perfiles de Iluminación Múltiple -->
     <button class="btn-control" onclick="cambiarModoLuz('estudio')">Focos Estudio</button>
     <button class="btn-control" onclick="cambiarModoLuz('alto-contraste')">Alto Contraste</button>
     <button class="btn-control" onclick="cambiarModoLuz('rasante')">Luz Rasante</button>
@@ -142,7 +142,6 @@
 
     mv.addEventListener('load', () => {
       if (mv.model && mv.model.materials && mv.model.materials[0]) {
-        // Mantiene acabado fósil pero permite sutiles reflejos de luz direccional
         mv.model.materials[0].pbrMetallicRoughness.setRoughnessFactor(0.70);
         mv.model.materials[0].pbrMetallicRoughness.setMetalnessFactor(0.0);
       }
@@ -150,7 +149,6 @@
 
     function cambiarVista(orbit) { mv.cameraOrbit = orbit; }
 
-    // Cambia modos de iluminación simétrica
     function cambiarModoLuz(modo) {
       if (modo === 'estudio') {
         mv.exposure = 1.3;
