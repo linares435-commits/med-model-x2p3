@@ -56,7 +56,6 @@
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      flex-wrap: wrap;
       gap: 8px;
       justify-content: center;
       background: rgba(15, 15, 15, 0.85);
@@ -64,8 +63,7 @@
       border-radius: 8px;
       border: 1px solid #333333;
       z-index: 10;
-      width: 90vw;
-      max-width: 650px;
+      max-width: 90vw;
       scrollbar-width: none; 
     }
     #controls-panel::-webkit-scrollbar { display: none; }
@@ -88,7 +86,13 @@
     @media (max-width: 600px) {
       #brand-title { font-size: 9px; padding: 6px 8px; left: 10px; }
       #ar-button { font-size: 10px; padding: 6px 10px; right: 10px; }
-      #controls-panel { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px; bottom: 16px; }
+      #controls-panel { 
+        justify-content: flex-start; 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+        padding: 8px; 
+        bottom: 16px; 
+      }
       .btn-control { flex-shrink: 0; padding: 8px 12px; }
       .separator { flex-shrink: 0; }
     }
@@ -96,8 +100,7 @@
 </head>
 <body>
 
-  <!-- Incluye v2.0 para confirmar que cargó el nuevo código -->
-  <div id="brand-title">Muestra Anatómica 3D (v2.0)</div>
+  <div id="brand-title">Muestra Anatómica 3D</div>
 
   <model-viewer 
     id="craneo-viewer"
@@ -120,13 +123,6 @@
   </model-viewer>
 
   <div id="controls-panel">
-    <button class="btn-control" onclick="cambiarVista('0deg 75deg 105%')">Posterior</button>
-    <button class="btn-control" onclick="cambiarVista('0deg 0deg 105%')">Superior</button>
-    <button class="btn-control" onclick="cambiarVista('90deg 75deg 105%')">Lateral</button>
-    <button class="btn-control" onclick="cambiarVista('180deg 75deg 105%')">Frontal</button>
-
-    <div class="separator"></div>
-
     <button class="btn-control" onclick="cambiarModoLuz('estudio')">Focos Estudio</button>
     <button class="btn-control" onclick="cambiarModoLuz('alto-contraste')">Alto Contraste</button>
     <button class="btn-control" onclick="cambiarModoLuz('rasante')">Luz Rasante</button>
@@ -146,8 +142,6 @@
         mv.model.materials[0].pbrMetallicRoughness.setMetalnessFactor(0.0);
       }
     });
-
-    function cambiarVista(orbit) { mv.cameraOrbit = orbit; }
 
     function cambiarModoLuz(modo) {
       if (modo === 'estudio') {
